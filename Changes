@@ -1,0 +1,19 @@
+Revision history for Text::Homoglyph::ASCII
+
+0.0.4
+    - Replace samemark with NFKD (Unicode Normalization Form KD) for accent removal
+    - NFKD provides more standard Unicode decomposition of accented characters
+    - Updated documentation to clarify ligature handling vs accent removal
+    - Ligatures (ß, æ, œ) are handled by homoglyph mapping, not NFKD
+    - All existing tests pass with the new implementation
+
+0.0.3
+    - Documentation fix
+
+0.0.2
+    - Documentation fix
+
+0.0.1
+    - First working version
+
+

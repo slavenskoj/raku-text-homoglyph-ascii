@@ -69,7 +69,7 @@ The module recognizes and converts homoglyphs from:
 - **Fullwidth Forms**: Ａ-Ｚ, ａ-ｚ, ０-９
 - **Roman Numerals**: Ⅰ, Ⅱ, Ⅲ, Ⅳ, Ⅴ, etc.
 - **Various Unicode blocks**: Including bold, italic, script, fraktur, sans-serif variants
-- **Ligatures**: ﬁ→fi, ﬀ→ff, ﬂ→fl, etc.
+- **Ligatures**: ﬁ→fi, ﬀ→ff, ﬂ→fl, ß→B, æ→ae, œ→oe, Æ→AE, Œ→OE, etc.
 
 ## Examples
 
@@ -171,10 +171,12 @@ Returns a hash with:
 
 An enhanced cleaning function that:
 1. Replaces all homoglyphs with ASCII equivalents (same as `clean-ascii`)
-2. Decomposes Unicode characters (uses Raku’s built in normalization, similar to NFKD)
+2. Uses NFKD (Unicode Normalization Form KD) to decompose accented characters
 3. Removes combining marks/diacritics from decomposable characters
 
 This function preserves non-decomposable Unicode characters (like emoji) while converting accented characters to their base forms (é→e, ñ→n, etc.). Use this when you want to normalize accented text while keeping other Unicode symbols intact.
+
+**Technical Note**: Ligatures like ß, æ, œ are handled by the homoglyph mapping (step 1), not by NFKD decomposition. NFKD specifically handles diacritical marks on characters (accents, tildes, umlauts, etc.) by decomposing them into base characters plus combining marks, which are then filtered out.
 
 ### clean-ascii-pure(Str $text --> Str)
 

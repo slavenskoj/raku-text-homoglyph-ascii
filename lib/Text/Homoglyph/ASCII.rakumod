@@ -443,9 +443,10 @@ sub clean-ascii-more(Str $text is copy --> Str) is export {
     # First do the regular homoglyph cleaning
     $text = clean-ascii($text);
     
-    # Use samemark to remove all diacritics (this actually works for precomposed characters)
-    # We need to provide a base string - using 'a' as shown in our test works
-    $text = $text.samemark('a');
+    # Use NFKD decomposition and filter out combining marks (Unicode category Mn)
+    # This removes diacritics from accented characters
+    my $nfkd = $text.NFKD;
+    $text = $nfkd.list.grep({ $_.uniprop('General_Category') ne 'Mn' }).map(*.chr).join;
     
     return $text;
 }
