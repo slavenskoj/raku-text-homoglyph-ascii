@@ -201,5 +201,5 @@ This module is distributed under the Artistic License 2.0.
 
 ## See Also
 
-- [Text::Homoglyph::Cyrillic](https://github.com/bbkr/Text-Homoglyph-Cyrillic) - For cleaning Cyrillic text from homoglyphs
+- [Text::Homoglyph::Cyrillic](https://github.com/slavenskoj/Raku-Text-Homoglyph-Cyrillic) - For cleaning Cyrillic text from homoglyphs
 - [Unicode Confusables](https://unicode.org/reports/tr36/) - Unicode Technical Report on security
