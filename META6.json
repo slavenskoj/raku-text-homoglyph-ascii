@@ -1,0 +1,17 @@
+{
+  "perl": "6.d",
+  "name": "Text::Homoglyph::ASCII",
+  "version": "0.0.1",
+  "auth": "zef:slavenskoj",
+  "authors": ["Danslav Slavenskoj"],
+  "description": "Clean ASCII text from look-alike Unicode characters",
+  "license": "Artistic-2.0",
+  "source-url": "https://github.com/slavenskoj/Raku-Text-Homoglyph-ASCII",
+  "provides": {
+    "Text::Homoglyph::ASCII": "lib/Text/Homoglyph/ASCII.rakumod"
+  },
+  "depends": [],
+  "test-depends": ["Test"],
+  "tags": ["ascii", "text-processing", "unicode", "cleaning", "homoglyph"],
+  "api": "1"
+}

@@ -1,0 +1,270 @@
+use v6.d;
+use Test;
+use Text::Homoglyph::ASCII;
+
+plan 46;
+
+# Test 1: Basic ASCII detection - no homoglyphs
+{
+    my $text = 'Hello World 123';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Hello World 123', 'Clean ASCII text remains unchanged';
+}
+
+# Test 2: Cyrillic homoglyphs
+{
+    my $text = 'Неllo Wоrld';  # H and o are Cyrillic
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Hello World', 'Cyrillic homoglyphs converted to ASCII';
+}
+
+# Test 3: Greek homoglyphs
+{
+    my $text = 'Αlpha Βeta';  # A and B are Greek
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Alpha Beta', 'Greek homoglyphs converted to ASCII';
+}
+
+# Test 4: Mathematical alphanumeric symbols
+{
+    my $text = '𝐇𝐞𝐥𝐥𝐨 𝟏𝟐𝟑';  # Bold mathematical
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Hello 123', 'Mathematical bold converted to ASCII';
+}
+
+# Test 5: Fullwidth forms
+{
+    my $text = 'Ｈｅｌｌｏ　Ｗｏｒｌｄ';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Hello World', 'Fullwidth forms converted to ASCII';
+}
+
+# Test 6: Mixed homoglyphs
+{
+    my $text = 'Ｈеlℓo Ꮤοrld';  # Mix of fullwidth, Cyrillic, script, Cherokee, Greek
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Hello World', 'Mixed homoglyphs converted to ASCII';
+}
+
+# Test 7: Numbers
+{
+    my $text = '𝟏𝟐𝟑 + ４５６ = 789';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, '123 + 456 = 789', 'Various number forms converted to ASCII';
+}
+
+# Test 8: Multi-character replacements
+{
+    my $text = 'ﬁle ﬀ ĳ';  # fi ligature, ff ligature, ij ligature
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'file ff ij', 'Ligatures converted to ASCII sequences';
+}
+
+# Test 9: Empty string
+{
+    my $text = '';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, '', 'Empty string remains empty';
+}
+
+# Test 10: Spaces and punctuation
+{
+    my $text = '   Hello, World!   ';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, '   Hello, World!   ', 'Spaces and punctuation preserved';
+}
+
+# Test 11: Detection function - no homoglyphs
+{
+    my $text = 'Hello World';
+    my @detected = detect-ascii-homoglyphs($text);
+    is @detected.elems, 0, 'No homoglyphs detected in clean ASCII';
+}
+
+# Test 12: Detection function - single homoglyph
+{
+    my $text = 'Нello';  # Cyrillic H
+    my @detected = detect-ascii-homoglyphs($text);
+    is @detected.elems, 1, 'Single homoglyph detected';
+    is @detected[0]<char>, 'Н', 'Correct homoglyph character identified';
+    is @detected[0]<ascii>, 'H', 'Correct ASCII replacement identified';
+    is @detected[0]<position>, 0, 'Correct position identified';
+}
+
+# Test 13: Detection function - multiple homoglyphs
+{
+    my $text = 'Неllo Wоrld';  # Cyrillic H, e, and o
+    my @detected = detect-ascii-homoglyphs($text);
+    is @detected.elems, 3, 'Multiple homoglyphs detected';
+    is @detected[0]<position>, 0, 'First homoglyph at position 0';
+    is @detected[2]<position>, 7, 'Third homoglyph at position 7';
+}
+
+# Test 14: Verbose function
+{
+    my $text = 'Неllo';
+    my %result = clean-ascii-verbose($text);
+    is %result<original>, 'Неllo', 'Original text preserved in verbose output';
+    is %result<cleaned>, 'Hello', 'Cleaned text correct in verbose output';
+    is %result<changed>, True, 'Changed flag is True when homoglyphs found';
+    is %result<replacements>.elems, 2, 'Replacement count correct';
+}
+
+# Test 15: Verbose function - no changes
+{
+    my $text = 'Hello';
+    my %result = clean-ascii-verbose($text);
+    is %result<changed>, False, 'Changed flag is False when no homoglyphs';
+}
+
+# Test 16: Roman numerals
+{
+    my $text = 'Chapter Ⅲ: Section ⅩⅡ';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Chapter III: Section XII', 'Roman numerals converted to ASCII';
+}
+
+# Test 17: Cherokee letters
+{
+    my $text = 'ᎪᏟᎾᏔ';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'AC0W', 'Cherokee letters converted to ASCII';
+}
+
+# Test 18: Script mathematical alphanumeric
+{
+    my $text = '𝒜ℬ𝒞 = 𝒶𝒷𝒸';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'ABC = abc', 'Script mathematical converted to ASCII';
+}
+
+# Test 19: Sans-serif variants
+{
+    my $text = '𝖺𝖻𝖼 𝟣𝟤𝟥';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'abc 123', 'Sans-serif variants converted to ASCII';
+}
+
+# Test 20: Ballot X marks
+{
+    my $text = 'Wrong ✗ Right ✓';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'Wrong X Right ✓', 'Ballot X converted, checkmark preserved';
+}
+
+# Test 21: Deseret alphabet
+{
+    my $text = '𐐀𐐚𐐕';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'aBC', 'Deseret alphabet converted to ASCII';
+}
+
+# Test 22: Multi-character homoglyph detection
+{
+    my $text = 'ﬁle';  # fi ligature
+    my @detected = detect-ascii-homoglyphs($text);
+    is @detected.elems, 1, 'Ligature detected as single homoglyph';
+    is @detected[0]<ascii>, 'fi', 'Ligature maps to correct ASCII sequence';
+    is @detected[0]<length>, 1, 'Ligature length is 1 character';
+}
+
+# Test 23: Complex multi-language text
+{
+    my $text = 'Ｔhe ԛuіck brοwn fοx jumps οver the lazy dοg';
+    my $cleaned = clean-ascii($text);
+    my $expected = 'The quick brown fox jumps over the lazy dog';
+    is $cleaned, $expected, 'Complex multi-language homoglyphs cleaned';
+}
+
+# Test 24: Stress test with many homoglyphs
+{
+    my $text = '𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'Full alphabet of bold mathematical converted';
+}
+
+# Test 25: Performance with no homoglyphs (should be fast)
+{
+    my $text = 'a' x 1000;
+    my $cleaned = clean-ascii($text);
+    is $cleaned, $text, 'Large ASCII-only text processed correctly';
+}
+
+# Test 26: clean-ascii-more with accented characters
+{
+    my $text = 'café naïve résumé';
+    my $cleaned = clean-ascii-more($text);
+    is $cleaned, 'cafe naive resume', 'Accented characters decomposed and cleaned';
+}
+
+# Test 27: clean-ascii-more with homoglyphs and accents
+{
+    my $text = 'Неllo café';  # Cyrillic H + accented e
+    my $cleaned = clean-ascii-more($text);
+    is $cleaned, 'Hello cafe', 'Homoglyphs replaced and accents removed';
+}
+
+# Test 28: clean-ascii-more with combining diacritics
+{
+    my $text = 'e' ~ "\x[0301]" ~ ' test';  # e + combining acute accent
+    my $cleaned = clean-ascii-more($text);
+    is $cleaned, 'e test', 'Combining diacritics removed';
+}
+
+# Test 29: clean-ascii-more preserves ASCII
+{
+    my $text = 'Hello World 123!@#$%^&*()_+-=[]{}|;:"<>,.?/~`';
+    my $cleaned = clean-ascii-more($text);
+    is $cleaned, $text, 'All ASCII characters preserved';
+}
+
+# Test 30: clean-ascii-more with emoji and non-ASCII
+{
+    my $text = 'Hello 👋 café ñ';
+    my $cleaned = clean-ascii-more($text);
+    is $cleaned, 'Hello 👋 cafe n', 'Emoji preserved, accents removed';
+}
+
+# Test 31: clean-ascii-pure basic test
+{
+    my $text = 'Hello World';
+    my $cleaned = clean-ascii-pure($text);
+    is $cleaned, 'Hello World', 'Pure ASCII text unchanged by clean-ascii-pure';
+}
+
+# Test 32: clean-ascii-pure with emoji
+{
+    my $text = 'Hello 👋 World';
+    my $cleaned = clean-ascii-pure($text);
+    is $cleaned, 'Hello _ World', 'Emoji replaced with underscore';
+}
+
+# Test 33: clean-ascii-pure with accents and emoji
+{
+    my $text = 'café ñiño 👍';
+    my $cleaned = clean-ascii-pure($text);
+    is $cleaned, 'cafe nino _', 'Accents removed, emoji replaced with underscore';
+}
+
+# Test 34: clean-ascii-pure with homoglyphs, accents, and emoji
+{
+    my $text = 'Ｈéllo café 👋 Wörld';
+    my $cleaned = clean-ascii-pure($text);
+    is $cleaned, 'Hello cafe _ World', 'Complete cleaning to pure ASCII';
+}
+
+# Test 35: clean-ascii-pure with various non-ASCII
+{
+    my $text = 'Test™ €100 →next← 中文';
+    my $cleaned = clean-ascii-pure($text);
+    is $cleaned, 'Test_ _100 _next_ __', 'All non-ASCII replaced with underscores';
+}
+
+# Test 46: Additional Cyrillic mappings
+{
+    my $text = 'јЈ їЇ б6 З3 іI';
+    my $cleaned = clean-ascii($text);
+    is $cleaned, 'jJ iI b6 33 iI', 'Additional Cyrillic characters converted correctly';
+}
+
+done-testing;
