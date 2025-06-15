@@ -171,7 +171,7 @@ Returns a hash with:
 
 An enhanced cleaning function that:
 1. Replaces all homoglyphs with ASCII equivalents (same as `clean-ascii`)
-2. Decomposes Unicode characters (Raku's built in normalization, like NFKD)
+2. Decomposes Unicode characters (uses Raku’s built in normalization, similar to NFKD)
 3. Removes combining marks/diacritics from decomposable characters
 
 This function preserves non-decomposable Unicode characters (like emoji) while converting accented characters to their base forms (é→e, ñ→n, etc.). Use this when you want to normalize accented text while keeping other Unicode symbols intact.
