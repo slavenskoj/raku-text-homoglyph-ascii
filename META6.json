@@ -1,7 +1,7 @@
 {
   "perl": "6.d",
   "name": "Text::Homoglyph::ASCII",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "auth": "zef:slavenskoj",
   "authors": ["Danslav Slavenskoj"],
   "description": "Clean ASCII text from look-alike Unicode characters",

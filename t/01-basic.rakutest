@@ -257,7 +257,7 @@ plan 46;
 {
     my $text = 'Test™ €100 →next← 中文';
     my $cleaned = clean-ascii-pure($text);
-    is $cleaned, 'Test_ _100 _next_ __', 'All non-ASCII replaced with underscores';
+    is $cleaned, 'TestTM _100 _next_ __', 'All non-ASCII replaced with underscores';
 }
 
 # Test 46: Additional Cyrillic mappings

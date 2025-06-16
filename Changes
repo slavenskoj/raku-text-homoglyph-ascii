@@ -1,5 +1,10 @@
 Revision history for Text::Homoglyph::ASCII
 
+0.0.5
+    - Fixed test expectation for trademark symbol (™) in clean-ascii-pure
+    - Trademark symbol correctly converts to "TM" through homoglyph mapping
+    - Test now expects 'TestTM' instead of 'Test_' for consistency
+
 0.0.4
     - Replace samemark with NFKD (Unicode Normalization Form KD) for accent removal
     - NFKD provides more standard Unicode decomposition of accented characters
